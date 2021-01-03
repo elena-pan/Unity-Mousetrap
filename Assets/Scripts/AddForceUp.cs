@@ -5,7 +5,7 @@ using UnityEngine;
 public class AddForceUp : MonoBehaviour
 {
     private Rigidbody rb;
-    private float increaseFactor = 15f;
+    private float increaseFactor = 18.65f;
 
     void Start()
     {
