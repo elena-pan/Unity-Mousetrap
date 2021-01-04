@@ -5,7 +5,7 @@ using UnityEngine;
 public class AddForceUp : MonoBehaviour
 {
     private Rigidbody rb;
-    private float increaseFactor = 40f;
+    private float increaseFactor = 20f;
     private bool triggerActive = true;
 
     void Start()
@@ -13,7 +13,7 @@ public class AddForceUp : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
     void OnCollisionEnter(Collision info) {
-        if (triggerActive && info.collider.name == "BALL 1 (1)") {
+        if (triggerActive && info.collider.name == "BALL 1") {
             rb.AddForce(Vector3.up*increaseFactor, ForceMode.VelocityChange);
             triggerActive = false;
         }

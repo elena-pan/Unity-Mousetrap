@@ -6,6 +6,7 @@ public class IncreaseGravity : MonoBehaviour
 {
     private Rigidbody rb;
     private float increaseFactor = 100f;
+    private bool triggered = false;
 
     void Start()
     {
@@ -14,6 +15,14 @@ public class IncreaseGravity : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.AddForce(Physics.gravity*increaseFactor, ForceMode.Acceleration);
+        if (triggered) {
+            rb.AddForce(Physics.gravity*increaseFactor, ForceMode.Acceleration);
+        }
+    }
+
+    void OnTriggerEnter(Collider other) {
+        if (other.name == "Ball detector") {
+            triggered = true;
+        }
     }
 }
