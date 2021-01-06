@@ -2,27 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IncreaseGravity : MonoBehaviour
-{
-    private Rigidbody rb;
-    private float increaseFactor = 100f;
-    private bool triggered = false;
-
-    void Start()
+namespace MouseTrap {
+    public class IncreaseGravity : MonoBehaviour
     {
-        rb = GetComponent<Rigidbody>();
-    }
+        private Rigidbody rb;
+        private float increaseFactor = 100f;
+        private bool triggered = false;
 
-    void FixedUpdate()
-    {
-        if (triggered) {
-            rb.AddForce(Physics.gravity*increaseFactor, ForceMode.Acceleration);
+        void Start()
+        {
+            rb = GetComponent<Rigidbody>();
         }
-    }
 
-    void OnTriggerEnter(Collider other) {
-        if (other.name == "Ball detector") {
-            triggered = true;
+        void FixedUpdate()
+        {
+            if (triggered) {
+                rb.AddForce(Physics.gravity*increaseFactor, ForceMode.Acceleration);
+            }
+        }
+
+        void OnTriggerEnter(Collider other) {
+            if (other.name == "Ball detector") {
+                triggered = true;
+            }
         }
     }
 }

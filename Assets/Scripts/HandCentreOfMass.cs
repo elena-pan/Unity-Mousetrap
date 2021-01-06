@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HandCentreOfMass : MonoBehaviour
-{
-    private Rigidbody rb;
-
-    void Start()
+namespace MouseTrap {
+    public class HandCentreOfMass : MonoBehaviour
     {
-        rb = GetComponent<Rigidbody>();
-        rb.centerOfMass = new Vector3(0f, 0f, 0.002f);
+        private Rigidbody rb;
+
+        void Start()
+        {
+            rb = GetComponent<Rigidbody>();
+            rb.centerOfMass = new Vector3(0f, 0f, 0.002f);
+        }
     }
 }
