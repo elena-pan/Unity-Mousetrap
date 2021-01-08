@@ -184,6 +184,8 @@ namespace MouseTrap
             // Set custom player properties
             ExitGames.Client.Photon.Hashtable hash = new ExitGames.Client.Photon.Hashtable();
             hash.Add("Alive", true);
+            hash.Add("Balance", 0);
+            hash.Add("Location", 0);
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
             
             UpdateTexts();

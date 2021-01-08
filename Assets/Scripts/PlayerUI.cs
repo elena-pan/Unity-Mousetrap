@@ -20,18 +20,11 @@ namespace MouseTrap
         private Text statsBody;
 
         [SerializeField]
-        private Button buyPropertyButton;
+        private Button moveOpponentButton;
         [SerializeField]
-        private Button buildHouseButton;
-        [SerializeField]
-        private Button sellHouseButton;
+        private Button turnCrankButton;
         [SerializeField]
         private Button endTurnButton;
-        private PlayerManager target;
-        void Awake()
-        {
-            this.transform.SetParent(GameObject.Find("Canvas").GetComponent<Transform>(), false);
-        }
 
         void Update()
         {
@@ -54,27 +47,13 @@ namespace MouseTrap
             activityPanelLine1.text = text;
         }
 
-        public void SetTarget(PlayerManager _target)
-        {
-            if (_target == null)
-            {
-                Debug.LogError("<Color=Red><a>Missing</a></Color> PlayMakerManager target for PlayerUI.SetTarget.", this);
-                return;
-            }
-            // Cache references for efficiency
-            target = _target;
-            //playerNameText.text = target.photonView.Owner.NickName;
-        }
         public void EnableButton(string button) {
             switch (button) {
-                case "buyPropertyButton":
-                    buyPropertyButton.interactable = true;
+                case "moveOpponentButton":
+                    moveOpponentButton.interactable = true;
                     break;
-                case "buildHouseButton":
-                    buildHouseButton.interactable = true;
-                    break;
-                case "sellPropertyButton":
-                    sellHouseButton.interactable = true;
+                case "turnCrankButton":
+                    turnCrankButton.interactable = true;
                     break;
                 case "endTurnButton":
                     endTurnButton.interactable = true;
@@ -85,14 +64,11 @@ namespace MouseTrap
         public void DisableButton(string button)
         {
             switch (button) {
-                case "buyPropertyButton":
-                    buyPropertyButton.interactable = false;
+                case "moveOpponentButton":
+                    moveOpponentButton.interactable = false;
                     break;
-                case "buildHouseButton":
-                    buildHouseButton.interactable = false;
-                    break;
-                case "sellPropertyButton":
-                    sellHouseButton.interactable = false;
+                case "turnCrankButton":
+                    turnCrankButton.interactable = false;
                     break;
                 case "endTurnButton":
                     endTurnButton.interactable = false;

@@ -11,8 +11,14 @@ namespace MouseTrap {
         public const byte SendNewActivityLineCode = 1;
         public const byte PlayerTurnCode = 2;
         public const byte ReceiveMoneyCode = 3;
-        public const byte EndGameCode = 4;
+        public const byte PayMoneyCode = 4;
+        public const byte MoveCode = 5;
+        public const byte StartContraptionCode = 6;
+        public const byte NumBuiltCode = 7;
+        public const byte EndGameCode = 8;
+
         public GameObject PlayerUi;
+
         public static void SendActivityMessage(string content, int? player = null)
         {
             object[] data = new object[] {player, content};
@@ -59,6 +65,30 @@ namespace MouseTrap {
                 case ReceiveMoneyCode:
                     int amount = (int)photonEvent.CustomData;
                     GameManager.instance.ReceiveMoney(amount);
+                    break;
+                case PayMoneyCode:
+                    int amount2 = (int)photonEvent.CustomData;
+                    GameManager.instance.PayMoney(amount2);
+                    break;
+                case MoveCode:
+                    int location = (int)photonEvent.CustomData;
+                    GameManager.instance.MoveToLocation(location);
+                    break;
+                case StartContraptionCode:
+                    CameraController.viewContraption = true;
+                    break;
+                case NumBuiltCode:
+                    int newNumBuilt = (int)photonEvent.CustomData;
+                    Build.LocalBuild(newNumBuilt);
+                    break;
+                case EndGameCode:
+                    int? playerNum = (int?)photonEvent.CustomData;
+                    if (playerNum == null) {
+                        GameManager.instance.EndGame(null, true);
+                    }
+                    else {
+                        GameManager.instance.EndGame(GameManager.instance.players[(int)playerNum], true);
+                    }
                     break;
             }
         }

@@ -16,17 +16,21 @@ namespace MouseTrap
         private float maximumY = 90F;
         float rotationY = -90F;
 
-        private float lerpSpeed = 10.0f;
+        private float lerpSpeed = 1.0f;
 
-        public static bool viewContraption = false;
+        public static bool viewContraption = true;
         public static bool viewDiceRoll = false;
+        public static bool isDragging = false;
 
         void Update()
         {
             if (viewContraption) {
                 LerpContraption();
             }
-            else
+            else if (viewDiceRoll) {
+                LerpDiceRoll();
+            }
+            else if (isDragging == false)
             {
                 MouseInput();
                 KeyboardInput();
@@ -38,9 +42,10 @@ namespace MouseTrap
             CameraFollow.isFollowing = false;
             viewDiceRoll = false;
             
-            Vector3 viewContraptionPos = new Vector3(0, 55, 1);
+            Vector3 viewContraptionPos = new Vector3(10, 15, -15);
+            Quaternion rotation = Quaternion.Euler(30,-30,0);
             this.transform.position = Vector3.Lerp(this.transform.position, viewContraptionPos, lerpSpeed*Time.deltaTime);
-            this.transform.LookAt(Vector3.zero); // Camera should be looking straight down
+            this.transform.rotation = Quaternion.Slerp(this.transform.rotation, rotation, lerpSpeed*Time.deltaTime);
 
             // Stop following once we reach the position
             if (this.transform.position == viewContraptionPos) {
@@ -53,7 +58,7 @@ namespace MouseTrap
             CameraFollow.isFollowing = false;
             viewContraption = false;
             
-            Vector3 viewDicePos = new Vector3(0, 55, 1);
+            Vector3 viewDicePos = new Vector3(0, 15, 2);
             this.transform.position = Vector3.Lerp(this.transform.position, viewDicePos, lerpSpeed*Time.deltaTime);
             this.transform.LookAt(Vector3.zero); // Camera should be looking straight down
 

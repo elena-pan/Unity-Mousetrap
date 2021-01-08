@@ -18,9 +18,17 @@ namespace MouseTrap {
             }));
         }
 
-        void StartContraption()
+        public void StartContraption()
         {
-            rb.AddRelativeTorque(transform.up * increaseFactor, ForceMode.Impulse);
+            StartCoroutine(Wait(2, () => {
+                rb.AddRelativeTorque(transform.up * increaseFactor, ForceMode.Impulse);
+            }));
+        }
+
+        private IEnumerator Wait(int num, System.Action callback)
+        {
+            yield return new WaitForSeconds(num);
+            callback();
         }
 
         private IEnumerator WaitForKeyPress(KeyCode key, System.Action callback)

@@ -23,17 +23,19 @@ namespace MouseTrap {
         public PhotonView baseC;
         public PhotonView tub;
         public PhotonView post;
-        private PhotonView[] objects;
+        private static PhotonView[] objects;
 
         void Start()
         {
             objects = new PhotonView[] {dice, ball1, ball2, cage, shoe, stopSign, bucket, hand, handRod, part15, teeterTotter, diver, baseC, tub, post};
         }
-        public void TransferOwnershipToSelf()
+        public static void TransferOwnershipToSelf()
         {
             foreach (PhotonView obj in objects) {
                 obj.TransferOwnership(PhotonNetwork.LocalPlayer);
             }
         }
+
+        
     }
 }
