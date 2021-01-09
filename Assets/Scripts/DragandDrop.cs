@@ -63,6 +63,7 @@ namespace MouseTrap {
             image = GetComponent<Image>();
             rect = GetComponent<RectTransform>();
             initialPos = rect.position;
+            SetUpImages();
         }
         public static void UpdateImage(int num)
         {
@@ -75,6 +76,8 @@ namespace MouseTrap {
         /// <param name="eventData">mouse pointer event data</param>
         public void OnBeginDrag(PointerEventData eventData)
         {
+            GameManager.instance.popUpWindow.SetActive(false);
+            GameManager.instance.buildArrowPanel.SetActive(false);
             //Debug.Log("Begin Drag");
             CameraController.isDragging = true;
             lastMousePosition = eventData.position;
@@ -106,9 +109,9 @@ namespace MouseTrap {
         public void OnEndDrag(PointerEventData eventData)
         {
             //Debug.Log("End Drag");
-            CameraController.isDragging = false;
-            Build.PlaceBuild();
             rect.position = initialPos;
+            CameraController.isDragging = false;
+            GameManager.instance.build.PlaceBuild();
         }
 
         /// <summary>
@@ -135,6 +138,11 @@ namespace MouseTrap {
                 isInside = true;
             }
             return isInside;
+        }
+
+        private void SetUpImages()
+        {
+            images = new Sprite[] {baseA, gearSupport, gear3, crank, gear5, stopSign, lampPost, shoe, stairway, bucket, baseB, chute, pipes, hand, thingamajig, bathtub, ball2, divingBoard, diver, baseC, tub, post, cage};
         }
     }
 }

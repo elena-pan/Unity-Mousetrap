@@ -7,12 +7,13 @@ namespace MouseTrap {
     {
         private Rigidbody rb;
         private float increaseFactor = 20f;
-        private bool triggerActive = true;
+        public bool triggerActive = true;
 
         void Start()
         {
             rb = GetComponent<Rigidbody>();
         }
+
         void OnCollisionEnter(Collision info) {
             if (triggerActive && info.collider.name == "BALL 1") {
                 rb.AddForce(Vector3.up*increaseFactor, ForceMode.VelocityChange);

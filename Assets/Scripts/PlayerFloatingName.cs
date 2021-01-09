@@ -13,7 +13,7 @@ namespace MouseTrap
 
         [Tooltip("Pixel offset from the player target")]
         [SerializeField]
-        private Vector3 screenOffset = new Vector3(0f,30f,0f);
+        private Vector3 screenOffset = new Vector3(0f,0f,0f);
 
         float characterHeight = 1.5f;
         Transform targetTransform;

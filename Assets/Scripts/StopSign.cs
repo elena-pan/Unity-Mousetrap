@@ -7,19 +7,22 @@ namespace MouseTrap {
     {
         private Rigidbody rb;
         private float increaseFactor = -200f;
-        private bool triggerActive = true;
+        [SerializeField]
+        private Rigidbody diver;
 
         void Start()
         {
             rb = GetComponent<Rigidbody>();
             rb.centerOfMass = Vector3.zero;
+            /*
             StartCoroutine(WaitForKeyPress(KeyCode.Space, () => {
                 StartContraption();
-            }));
+            }));*/
         }
 
         public void StartContraption()
         {
+            diver.isKinematic = false;
             StartCoroutine(Wait(2, () => {
                 rb.AddRelativeTorque(transform.up * increaseFactor, ForceMode.Impulse);
             }));

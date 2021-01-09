@@ -15,7 +15,7 @@ namespace MouseTrap
 
         [Tooltip("The Smoothing for the camera to follow the target")]
         [SerializeField]
-        private float lerpSpeed = 2f;
+        private float lerpSpeed = 5f;
 
         // cached transform of the target
         Transform cameraTransform;

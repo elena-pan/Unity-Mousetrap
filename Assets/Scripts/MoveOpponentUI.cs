@@ -30,8 +30,9 @@ namespace MouseTrap
             for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount; i++) {
                 Player player = GameManager.instance.players[i];
                 if (player == PhotonNetwork.LocalPlayer) continue;
-                // Player not on cheese wheel
-                if ((int)player.CustomProperties["Location"] != 49) {
+                // Player not on cheese wheel and not on SAFE
+                int playerLocation = (int)player.CustomProperties["Location"];
+                if (playerLocation != 49 && playerLocation != 44) {
                     options.Add(player.NickName);
                     validPlayers.Add(i);
                 }

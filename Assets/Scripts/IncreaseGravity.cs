@@ -7,7 +7,7 @@ namespace MouseTrap {
     {
         private Rigidbody rb;
         private float increaseFactor = 100f;
-        private bool triggered = false;
+        public bool triggered = false;
 
         void Start()
         {

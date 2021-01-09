@@ -23,6 +23,8 @@ namespace MouseTrap
             if (photonView.IsMine)
             {
                 PlayerManager.LocalPlayerInstance = this.gameObject;
+                location = 0;
+                balance = 0;
             }
             // we flag as don't destroy on load so that instance survives level synchronization, thus giving a seamless experience when levels load.
             DontDestroyOnLoad(this.gameObject);
@@ -48,7 +50,7 @@ namespace MouseTrap
                 Quaternion upright = Quaternion.Euler(-90, 0, 0);
                 LocalPlayerInstance.transform.rotation = Quaternion.Slerp(LocalPlayerInstance.transform.rotation, upright, slerpSpeed*Time.deltaTime);
 
-                if (Vector3.Distance(LocalPlayerInstance.transform.position, newLocation) < 1.0f) {
+                if (Vector3.Distance(LocalPlayerInstance.transform.position, newLocation) < 0.00001f) {
                     isMoving = false;
                 }
             }

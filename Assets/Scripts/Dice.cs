@@ -19,7 +19,7 @@ namespace MouseTrap
 			float dirX = Random.Range (10, 500);
 			float dirY = Random.Range (10, 500);
 			float dirZ = Random.Range (10, 500);
-			transform.position = new Vector3 (0, 10, 0);
+			transform.position = new Vector3 (0, 7, 4);
 			transform.rotation = Quaternion.identity;
 			rb.AddForce (transform.up * 150);
 			rb.AddTorque (dirX, dirY, dirZ);

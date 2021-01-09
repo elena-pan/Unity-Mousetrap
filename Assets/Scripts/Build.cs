@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Photon.Pun;
 
 namespace MouseTrap {
     public class Build : MonoBehaviour
@@ -17,6 +18,7 @@ namespace MouseTrap {
         public GameObject lampPost;
         public GameObject shoe;
         public GameObject stopSign;
+        public GameObject baseAPole;
         public GameObject ramp;
         public GameObject bucket;
         public GameObject baseB;
@@ -33,17 +35,17 @@ namespace MouseTrap {
         public GameObject post;
         public GameObject trussFront;
         public GameObject trussBack;
-        public static int numBuilt = 0;
-        public static bool buildAnother = false;
-        public static GameObject buildPanel;
+        public int numBuilt = 0;
+        public bool buildAnother = false;
+        public GameObject buildPanel;
 
-        public static GameObject[][] buildOrder;
+        public GameObject[][] buildOrder;
         void Start()
         {
             SetBuildGroups();
         }
 
-        public static void PlaceBuild()
+        public void PlaceBuild()
         {
             buildPanel.SetActive(false);
             foreach (GameObject obj in buildOrder[numBuilt]) {
@@ -57,17 +59,17 @@ namespace MouseTrap {
                 GameManager.instance.OpenBuild(1);
                 buildAnother = false;
             }
+            else {
+                GameManager.instance.EnableButton("endTurnButton");
+            }
         }
 
-        public static void LocalBuild(int newNumBuilt)
+        public void LocalBuild(int newNumBuilt)
         {
             int numTimes = newNumBuilt - numBuilt;
             for (int i = 0; i < numTimes; i++) {
-                // Non-networked objects - we must set them active ourselves
-                if (numBuilt == 0 || numBuilt == 1 || numBuilt == 2 ||  numBuilt == 3 || numBuilt == 4 || numBuilt == 6 || numBuilt == 8 || numBuilt == 10 || numBuilt == 11 || numBuilt == 12 || numBuilt == 15) {
-                    foreach (GameObject obj in buildOrder[numBuilt]) {
-                        obj.SetActive(true);
-                    }
+                foreach (GameObject obj in buildOrder[numBuilt]) {
+                    obj.SetActive(true);
                 }
                 numBuilt++; // Also update numBuilt
             }
@@ -80,7 +82,7 @@ namespace MouseTrap {
             GameObject[] group3 = new GameObject[] {gear3};
             GameObject[] group4 = new GameObject[] {crank};
             GameObject[] group5 = new GameObject[] {gear5};
-            GameObject[] group6 = new GameObject[] {stopSign};
+            GameObject[] group6 = new GameObject[] {stopSign, baseAPole};
             GameObject[] group7 = new GameObject[] {lampPost};
             GameObject[] group8 = new GameObject[] {shoe};
             GameObject[] group9 = new GameObject[] {trussFront, trussBack, ramp};
@@ -100,6 +102,49 @@ namespace MouseTrap {
             GameObject[] group23 = new GameObject[] {cage};
 
             buildOrder = new GameObject[][] {group1, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group12, group13, group14, group15, group16, group17, group18, group19, group20, group21, group22, group23};
+        }
+
+        public void ResetAll()
+        {
+            foreach(GameObject[] group in buildOrder) {
+                foreach(GameObject obj in group) {
+                    if (obj.activeSelf) {
+                        ResetPosition resetPos = obj.GetComponent<ResetPosition>();
+                        AddForceUp addForceUp = obj.GetComponent<AddForceUp>();
+                        Cage cageComp = obj.GetComponent<Cage>();
+                        Diver diverComp = obj.GetComponent<Diver>();
+                        IncreaseGravity increaseGravity = obj.GetComponent<IncreaseGravity>();
+
+                        if (resetPos != null) {
+                            PhotonView photonView = obj.GetComponent<PhotonView>();
+                            if (photonView != null) {
+                                if (photonView.IsMine) {
+                                    resetPos.ResetPos();
+                                }
+                            }
+                            else {
+                                resetPos.ResetPos();
+                            }
+                        }
+                        if (addForceUp != null) {
+                            addForceUp.triggerActive = true;
+                            Debug.Log("addforceup");
+                        }
+                        if (cageComp != null) {
+                            cageComp.ResetStart();
+                            Debug.Log("cagecomp");
+                        }
+                        if (diverComp != null) {
+                            diverComp.Reset();
+                            Debug.Log("diverComp");
+                        }
+                        if (increaseGravity != null) {
+                            increaseGravity.triggered = false;
+                            Debug.Log("increaseGravity");
+                        }
+                    }
+                }
+            }
         }
     }
 }

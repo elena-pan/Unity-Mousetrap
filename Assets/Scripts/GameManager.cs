@@ -27,6 +27,11 @@ namespace MouseTrap
         public StopSign stopSign;
 
         public GameObject buildPanel;
+        public GameObject buildArrowPanel;
+        public Build build;
+
+        public bool isTurningCrank = false;
+        public bool cageFell = false;
         
         void Awake()
         {
@@ -83,13 +88,28 @@ namespace MouseTrap
             if (board.locations[location].name == "Build") {
                 // Check if this is a build space where we can actually build
                 if (PhotonNetwork.CurrentRoom.PlayerCount <= board.locations[location].buildNum) {
+                    
                     string landedOnText = "landed on " + board.locations[location].name;
-                    PhotonEvents.SendActivityMessage(landedOnText, currentPlayer);
+                    int playerNum = 0;
+                    for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount; i++) {
+                        if (players[i] == PhotonNetwork.LocalPlayer) {
+                            playerNum = i;
+                            break;
+                        }
+                    }
+                    PhotonEvents.SendActivityMessage(landedOnText, playerNum);
                 }
             }
             else {
                 string landedOnText = "landed on " + board.locations[location].name;
-                PhotonEvents.SendActivityMessage(landedOnText, currentPlayer);
+                int playerNum = 0;
+                for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount; i++) {
+                    if (players[i] == PhotonNetwork.LocalPlayer) {
+                        playerNum = i;
+                        break;
+                    }
+                }
+                PhotonEvents.SendActivityMessage(landedOnText, playerNum);
             }
             
         }
@@ -99,16 +119,16 @@ namespace MouseTrap
             Location currentLocation = board.locations[location];
             if (currentLocation.name == "Build") {
                 // Check if this is a build space where we can actually build
-                if (PhotonNetwork.CurrentRoom.PlayerCount <= currentLocation.buildNum && Build.numBuilt < 23) {
+                if (PhotonNetwork.CurrentRoom.PlayerCount <= currentLocation.buildNum && build.numBuilt < 23) {
                     OpenBuild(1);
                 }
             }
             else if (currentLocation.name == "Build 2") {
                 if (PhotonNetwork.CurrentRoom.PlayerCount <= currentLocation.buildNum) {
-                    if (Build.numBuilt < 22) {
+                    if (build.numBuilt < 22) {
                         OpenBuild(2);
                     }
-                    else if (Build.numBuilt < 23) {
+                    else if (build.numBuilt < 23) {
                         OpenBuild(1);
                     }
                 }
@@ -147,10 +167,12 @@ namespace MouseTrap
                 }
 
                 if (currentLocation.moveSteps != 0) {
-                    Move(currentLocation.moveSteps);
+                    int locationNum = Move(currentLocation.moveSteps);
+                    LandedOn(locationNum);
                 }
                 else if (currentLocation.moveTo >= 0) {
                     MoveToLocation(currentLocation.moveTo);
+                    LandedOn(currentLocation.moveTo);
                 }
             }
         }
@@ -160,6 +182,8 @@ namespace MouseTrap
             DisableButton("moveOpponentButton");
             DisableButton("turnCrankButton");
             DisableButton("endTurnButton");
+
+            CheckNumAlive();
 
             if (currentPlayer >= PhotonNetwork.CurrentRoom.PlayerCount-1) {
                 currentPlayer = 0;
@@ -177,6 +201,9 @@ namespace MouseTrap
 
         public void StartTurn()
         {
+            build.ResetAll();
+            cageFell = false;
+            isTurningCrank = false;
             CameraController.viewDiceRoll = true;
             if (players[currentPlayer] == PhotonNetwork.LocalPlayer)
             {
@@ -206,8 +233,16 @@ namespace MouseTrap
             hash.Add("Balance", PlayerManager.balance);
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
 
+            int playerNum = 0;
+            for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount; i++) {
+                if (players[i] == PhotonNetwork.LocalPlayer) {
+                    playerNum = i;
+                    break;
+                }
+            }
+
             string text = "took " + amount + " pieces of cheese";
-            PhotonEvents.SendActivityMessage(text, currentPlayer);
+            PhotonEvents.SendActivityMessage(text, playerNum);
         }
 
         public void PayMoney(int amount, Player recipient = null)
@@ -225,8 +260,16 @@ namespace MouseTrap
             hash.Add("Balance", PlayerManager.balance);
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
 
+            int playerNum = 0;
+            for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount; i++) {
+                if (players[i] == PhotonNetwork.LocalPlayer) {
+                    playerNum = i;
+                    break;
+                }
+            }
+
             string text = "lost " + amount + " pieces of cheese";
-            PhotonEvents.SendActivityMessage(text, currentPlayer);
+            PhotonEvents.SendActivityMessage(text, playerNum);
 
             if (recipient != null) {
                 int[] targetActors = {recipient.ActorNumber};
@@ -236,11 +279,18 @@ namespace MouseTrap
 
         public void OpenBuild(int num)
         {
-            PhotonTransferOwnership.TransferOwnershipToSelf();
+            DisableButton("endTurnButton");
+
             if (num > 1) {
-                Build.buildAnother = true;
+                build.buildAnother = true;
             }
-            DragandDrop.UpdateImage(Build.numBuilt);
+
+            buildArrowPanel.SetActive(true);
+            
+            CameraFollow.isFollowing = false;
+            CameraController.viewContraption = true;
+
+            DragandDrop.UpdateImage(build.numBuilt);
             buildPanel.SetActive(true);
         }
 
@@ -281,31 +331,47 @@ namespace MouseTrap
             DisableButton("moveOpponentButton");
             DisableButton("turnCrankButton");
 
+            PhotonTransferOwnership.TransferOwnershipToSelf();
+
             string text = "turned the crank!";
             PhotonEvents.SendActivityMessage(text, currentPlayer);
 
             PhotonEvents.SendEvent(PhotonEvents.StartContraptionCode, 0);
 
+            isTurningCrank = true;
             stopSign.StartContraption();
         }
 
         public void TurnCrankOptions()
         {
             int numOnCheeseWheel = 0;
+            int numCanMove = 0;
                 
             foreach (Player player in players) {
                 if (player == PhotonNetwork.LocalPlayer) continue;
-                if ((int)player.CustomProperties["Location"] == 49) {
+
+                int playerLocation = (int)player.CustomProperties["Location"];
+                if (playerLocation == 49) {
                     numOnCheeseWheel++;
+                }
+                else { // Not on cheese wheel and not on SAFE
+                    if (playerLocation != 44) {
+                        numCanMove++;
+                    }
                 }
             }
 
-            int numNotOnCheeseWheel = PhotonNetwork.CurrentRoom.PlayerCount - numOnCheeseWheel - 1;
-            if (numOnCheeseWheel > 0 && Build.numBuilt == 23) {
+            if (numOnCheeseWheel > 0 && build.numBuilt == 23) {
                 EnableButton("turnCrankButton");
             }
-            if (numNotOnCheeseWheel > 0 && PlayerManager.balance >= 1) {
+            else {
+                DisableButton("turnCrankButton");
+            }
+            if (numCanMove > 0 && PlayerManager.balance >= 1) {
                 EnableButton("moveOpponentButton");
+            }
+            else {
+                DisableButton("moveOpponentButton");
             }
         }
 
@@ -314,7 +380,7 @@ namespace MouseTrap
             // Check how many players are alive
             List<Player> alive = new List<Player>();
             foreach (Player player in players) {
-                if ((bool)player.CustomProperties["Alive"] == false) {
+                if ((bool)player.CustomProperties["Alive"] == true) {
                     alive.Add(player);
                 }
             }
@@ -335,7 +401,15 @@ namespace MouseTrap
             hash.Add("Alive", false);
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
 
-            PhotonEvents.SendActivityMessage("was captured!", currentPlayer);
+            int playerNum = 0;
+            for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount; i++) {
+                if (players[i] == PhotonNetwork.LocalPlayer) {
+                    playerNum = i;
+                    break;
+                }
+            }
+
+            PhotonEvents.SendActivityMessage("was captured!", playerNum);
 
             // Check how many players are alive
             // We do this here because the custom properties are not set fast enough
@@ -344,7 +418,7 @@ namespace MouseTrap
                 if (player == PhotonNetwork.LocalPlayer) {
                     continue;
                 }
-                if ((bool)player.CustomProperties["Alive"] == false) {
+                if ((bool)player.CustomProperties["Alive"] == true) {
                     alive.Add(player);
                 }
             }
@@ -360,6 +434,14 @@ namespace MouseTrap
             NextPlayer();
         }
 
+        public void CapturedCoroutine() {
+            if (PlayerManager.location == 49) {
+                StartCoroutine(CheckIfCaptured(() => {
+                    Captured();
+                }));
+            }
+        }
+
         public void EndGame(Player winner, bool receivedSignal = false)
         {
             // We are sending the bankrupt signal
@@ -373,6 +455,7 @@ namespace MouseTrap
                 }
                 PhotonEvents.SendEvent(PhotonEvents.EndGameCode, playerNum);
             }
+
 
             if (winner == null) {
                 WinnerScene.winner = "Game over - no winners";
@@ -392,9 +475,16 @@ namespace MouseTrap
             popUpWindow.SetActive(false);
         
             // Roll dice after player presses space
+            int timer = 0;
             dice.RollDice();
             while (DiceResult.diceNum == -1) {
                 yield return new WaitForSeconds(2);
+                timer += 2;
+                // If 10 seconds have passed and no dice result
+                if (timer > 10) {
+                    timer = 0;
+                    dice.RollDice();
+                }
             }
 
             callback(DiceResult.diceNum); // Use callback to do something with result
@@ -430,6 +520,27 @@ namespace MouseTrap
             callback();
         }
 
+        private IEnumerator CheckIfCaptured(System.Action capturedCallback)
+        {
+            bool done = false;
+            while(!done)
+            {
+                if (!isTurningCrank)
+                {
+                    done = true; // breaks the loop
+                }
+                else if (cageFell) {
+                    done = true;
+                }
+                yield return null;
+            }
+
+            // If cage fell and player is on cheese wheel
+            if (isTurningCrank && cageFell && PlayerManager.location == 49) {
+                capturedCallback();
+            }
+        }
+
         public override void OnPlayerLeftRoom(Player other)
         {
             string text = other.NickName + " has left the game.";
@@ -450,12 +561,12 @@ namespace MouseTrap
             }
         }
 
-        private void DisableButton(string button)
+        public void DisableButton(string button)
         {
             PlayerUi.SendMessage ("DisableButton", button, SendMessageOptions.RequireReceiver);
         }
 
-        private void EnableButton(string button)
+        public void EnableButton(string button)
         {
             PlayerUi.SendMessage ("EnableButton", button, SendMessageOptions.RequireReceiver);
         }

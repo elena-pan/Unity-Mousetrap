@@ -10,6 +10,12 @@ namespace MouseTrap {
         [SerializeField]
         private Collider hook;
         private bool triggerActive = true;
+        public Rigidbody rb;
+
+        void Start() {
+            rb = GetComponent<Rigidbody>();
+            rb.isKinematic = true;
+        }
 
         void OnCollisionExit(Collision info) {
             if (triggerActive && info.collider.name == "PART 18 TEETER TOTTER") {
@@ -21,6 +27,12 @@ namespace MouseTrap {
                 hook.enabled = false;
                 triggerActive = false;
             }
+        }
+        public void Reset()
+        {
+            rb.isKinematic = true;
+            hook.enabled = true;
+            triggerActive = true;
         }
     }
 }

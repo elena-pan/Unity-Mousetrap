@@ -35,7 +35,5 @@ namespace MouseTrap {
                 obj.TransferOwnership(PhotonNetwork.LocalPlayer);
             }
         }
-
-        
     }
 }

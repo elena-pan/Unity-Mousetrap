@@ -11,7 +11,7 @@ namespace MouseTrap
         // Sets disabled on start
         void Start()
         {
-            //this.gameObject.SetActive(false);
+            this.gameObject.SetActive(false);
         }
     }
 }

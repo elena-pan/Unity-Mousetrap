@@ -9,6 +9,11 @@ namespace MouseTrap {
         void Start()
         {
             rb = GetComponent<Rigidbody>();
+            ResetStart();
+        }
+
+        public void ResetStart()
+        {
             StartCoroutine(LetFall());
         }
 
@@ -17,6 +22,12 @@ namespace MouseTrap {
             rb.constraints = RigidbodyConstraints.None;
             yield return new WaitForSeconds(1);
             rb.constraints = RigidbodyConstraints.FreezePositionY;
+        }
+
+        void OnCollisionStay(Collision info) {
+            if (GameManager.instance.isTurningCrank && info.collider.name == "Board") {
+                GameManager.instance.cageFell = true;
+            }
         }
             
     }

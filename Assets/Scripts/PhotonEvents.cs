@@ -75,11 +75,13 @@ namespace MouseTrap {
                     GameManager.instance.MoveToLocation(location);
                     break;
                 case StartContraptionCode:
+                    GameManager.instance.isTurningCrank = true;
                     CameraController.viewContraption = true;
+                    GameManager.instance.CapturedCoroutine();
                     break;
                 case NumBuiltCode:
                     int newNumBuilt = (int)photonEvent.CustomData;
-                    Build.LocalBuild(newNumBuilt);
+                    GameManager.instance.build.LocalBuild(newNumBuilt);
                     break;
                 case EndGameCode:
                     int? playerNum = (int?)photonEvent.CustomData;
