@@ -319,6 +319,9 @@ namespace MouseTrap
                 int[] targetActors = {players[playerNum].ActorNumber};
                 PhotonEvents.SendEvent(PhotonEvents.MoveCode, location, targetActors);
 
+                // Camera follow other player
+                CameraFollow.target = players[playerNum];
+
                 // Make sure updates have synced
                 StartCoroutine(WaitForUpdate(playerNum, location, () => {
                     TurnCrankOptions();
