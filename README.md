@@ -1,6 +1,6 @@
 # 3D Multiplayer MouseTrap Game
 
-Play here with your friends: https://elena-pan.github.io/unity-mousetrap/
+Play here with your friends: https://elena-pan.github.io/Unity-Mousetrap/
 
 Note: Playing with yourself in multiple tabs is inadvisable - if one tab goes out of focus, Photon Networking may fail to instantiate the player.
 
